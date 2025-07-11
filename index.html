@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smooth Fish</title>
+  <title>Smooth Big Fish</title>
   <style>
     body {
       margin: 0;
@@ -11,16 +11,16 @@
     }
     img#fish {
       position: absolute;
-      width: 100px;
+      width: 200px;
       height: auto;
       pointer-events: none;
-      transform-origin: center center;
+      transform-origin: 20% 50%;
+      transition: filter 0.1s linear;
     }
   </style>
 </head>
 <body>
   <img id="fish" src="Fish.png" alt="Fish">
-
   <script>
     const fish = document.getElementById("fish");
     let fishX = window.innerWidth / 2;
@@ -29,33 +29,48 @@
     let mouseY = fishY;
     let angle = 0;
     let followMouse = false;
+    let lastMove = Date.now();
+    let prevX = fishX;
+    let prevY = fishY;
 
-    document.addEventListener("mousemove", (e) => {
+    document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
       followMouse = true;
+      lastMove = Date.now();
     });
 
     function animate() {
+      const now = Date.now();
+      const idle = now - lastMove > 1000;
       const dx = mouseX - fishX;
       const dy = mouseY - fishY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      const dist = Math.hypot(dx, dy);
 
-      if (followMouse && distance > 1) {
+      if (!idle && followMouse && dist > 1) {
         fishX += dx * 0.05;
         fishY += dy * 0.05;
-      } else {
-        fishX += (Math.random() - 0.5) * 1;
-        fishY += (Math.random() - 0.5) * 1;
       }
 
-      const targetAngle = Math.atan2(dy, dx);
-      angle += (targetAngle - angle) * 0.1;
+      if (idle) {
+        angle += 0.002;
+      } else {
+        const target = Math.atan2(dy, dx);
+        angle += (target - angle) * 0.1;
+      }
+
+      const vx = fishX - prevX;
+      const vy = fishY - prevY;
+      const speed = Math.hypot(vx, vy);
+      const blur = Math.min(speed * 0.1, 5);
+      fish.style.filter = blur > 0.5 ? `blur(${blur}px)` : "none";
 
       fish.style.left = fishX + "px";
       fish.style.top = fishY + "px";
       fish.style.transform = `rotate(${angle}rad)`;
 
+      prevX = fishX;
+      prevY = fishY;
       requestAnimationFrame(animate);
     }
 
