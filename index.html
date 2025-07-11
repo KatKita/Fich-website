@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>idk</title>
+  <title>Floating Fish</title>
   <style>
     body {
       margin: 0;
@@ -19,7 +19,7 @@
   </style>
 </head>
 <body>
-  <img id="fish" src="Fish.png" alt="Рыба">
+  <img id="fish" src="Fish.png" alt="Fish">
   
   <script>
     const fish = document.getElementById("fish");
@@ -29,34 +29,28 @@
     let mouseY = fishY;
     let followMouse = false;
 
-    // Следим за движением мыши
     document.addEventListener("mousemove", (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
       followMouse = true;
     });
 
-    // Плавное движение рыбы
     function animate() {
       const dx = mouseX - fishX;
       const dy = mouseY - fishY;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (followMouse && distance > 1) {
-        // Рыба плывёт к мышке
         fishX += dx * 0.05;
         fishY += dy * 0.05;
       } else if (!followMouse || distance <= 1) {
-        // Если мышь не двигается — случайное блуждание
         fishX += (Math.random() - 0.5) * 2;
         fishY += (Math.random() - 0.5) * 2;
       }
 
-      // Устанавливаем позицию
       fish.style.left = fishX + "px";
       fish.style.top = fishY + "px";
 
-      // Поворачиваем рыбу в сторону движения
       const angle = Math.atan2(dy, dx);
       fish.style.transform = `rotate(${angle}rad) scaleX(${dx < 0 ? -1 : 1})`;
 
