@@ -14,7 +14,7 @@
       width: 200px;
       height: auto;
       pointer-events: none;
-      transform-origin: 20% 50%;
+      transform-origin: left center;
       transition: filter 0.1s linear;
     }
   </style>
@@ -28,15 +28,19 @@
     let mouseX = fishX;
     let mouseY = fishY;
     let angle = 0;
-    let followMouse = false;
     let lastMove = Date.now();
     let prevX = fishX;
     let prevY = fishY;
+    let headOffsetY = 0;
+
+    fish.onload = () => {
+      headOffsetY = fish.clientHeight / 2;
+      fishY -= headOffsetY;
+    };
 
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
-      mouseY = e.clientY;
-      followMouse = true;
+      mouseY = e.clientY - headOffsetY;
       lastMove = Date.now();
     });
 
@@ -47,17 +51,17 @@
       const dy = mouseY - fishY;
       const dist = Math.hypot(dx, dy);
 
-      if (!idle && followMouse && dist > 1) {
+      if (!idle && dist > 1) {
         fishX += dx * 0.05;
         fishY += dy * 0.05;
       }
 
-      if (idle) {
-        angle += 0.002;
-      } else {
-        const target = Math.atan2(dy, dx);
-        angle += (target - angle) * 0.1;
-      }
+      const target = idle
+        ? angle + 0.001
+        : Math.atan2(dy, dx);
+      let delta = target - angle;
+      delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+      angle += delta * (idle ? 0.02 : 0.1);
 
       const vx = fishX - prevX;
       const vy = fishY - prevY;
