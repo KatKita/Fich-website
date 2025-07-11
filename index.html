@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smooth Big Fish</title>
+  <title>Gentle Fish</title>
   <style>
     body {
       margin: 0;
@@ -31,42 +31,47 @@
     let lastMove = Date.now();
     let prevX = fishX;
     let prevY = fishY;
-    let headOffsetY = 0;
-
-    fish.onload = () => {
-      headOffsetY = fish.clientHeight / 2;
-      fishY -= headOffsetY;
-    };
+    let wanderTarget = { x: fishX, y: fishY };
+    let lastWander = Date.now();
 
     document.addEventListener("mousemove", e => {
       mouseX = e.clientX;
-      mouseY = e.clientY - headOffsetY;
+      mouseY = e.clientY;
       lastMove = Date.now();
     });
 
     function animate() {
       const now = Date.now();
       const idle = now - lastMove > 1000;
+
+      if (idle) {
+        if (now - lastWander > 2000) {
+          wanderTarget.x = Math.random() * window.innerWidth;
+          wanderTarget.y = Math.random() * window.innerHeight;
+          lastWander = now;
+        }
+        mouseX = wanderTarget.x;
+        mouseY = wanderTarget.y;
+      }
+
       const dx = mouseX - fishX;
       const dy = mouseY - fishY;
       const dist = Math.hypot(dx, dy);
 
-      if (!idle && dist > 1) {
-        fishX += dx * 0.05;
-        fishY += dy * 0.05;
+      if (dist > 1) {
+        fishX += dx * 0.02;
+        fishY += dy * 0.02;
       }
 
-      const target = idle
-        ? angle + 0.001
-        : Math.atan2(dy, dx);
+      const target = Math.atan2(dy, dx);
       let delta = target - angle;
       delta = Math.atan2(Math.sin(delta), Math.cos(delta));
-      angle += delta * (idle ? 0.02 : 0.1);
+      angle += delta * 0.05;
 
       const vx = fishX - prevX;
       const vy = fishY - prevY;
       const speed = Math.hypot(vx, vy);
-      const blur = Math.min(speed * 0.1, 5);
+      const blur = Math.min(speed * 0.1, 3);
       fish.style.filter = blur > 0.5 ? `blur(${blur}px)` : "none";
 
       fish.style.left = fishX + "px";
